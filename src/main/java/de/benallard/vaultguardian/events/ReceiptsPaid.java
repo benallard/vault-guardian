@@ -1,6 +1,6 @@
 package de.benallard.vaultguardian.events;
 
-public record MoneyCounted(
-        double physicalAmount
+public record ReceiptsPaid(
+        double totalAmount
 ) implements CashBoxEvent {
 }
