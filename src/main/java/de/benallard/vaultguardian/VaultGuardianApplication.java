@@ -32,7 +32,7 @@ public class VaultGuardianApplication {
     }
 
     @Bean
-    public ApplicationService<CashBoxEvent> applicationService(EventStore eventStore, CloudEventConverter eventConverter) {
-        return new GenericApplicationService<>(eventStore, eventConverter);
+    public ApplicationService<CashBoxEvent> applicationService(EventStore eventStore, CloudEventConverter<CashBoxEvent> eventConverter) {
+        return new GenericApplicationService<CashBoxEvent>(eventStore, eventConverter);
     }
 }
