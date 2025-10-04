@@ -19,9 +19,12 @@ public class CashboxQueryService {
         this.eventConverter = eventConverter;
     }
 
-    public double getSaldo(String cashboxId) {
+    public CashBoxReadModel getReadModel(String cashboxId) {
         CashBoxState state = loadState(cashboxId, eventStore);
-        return state.boxAmount();
+        return new CashBoxReadModel(
+                state.toPayAmount(),
+                state.inventoryAmount() != 0,
+                state.discrepancyAmount());
     }
 
     private CashBoxState loadState(String streamId, EventStore eventStore) {
@@ -29,6 +32,12 @@ public class CashboxQueryService {
         Stream<CloudEvent> events = eventStore.read(streamId).events();
 
         return events.map(eventConverter::toDomainEvent)
-              .reduce(CashBoxState.initial(), CashBoxState::apply, (s1, s2) -> s2);
+                .reduce(CashBoxState.initial(), CashBoxState::apply, (s1, s2) -> s2);
+    }
+
+    public record CashBoxReadModel(
+            double toPayAmount,
+            boolean countingInProgress,
+            double discrepancyAmount) {
     }
 }

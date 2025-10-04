@@ -48,18 +48,23 @@ public class CashBoxController {
         process(new FinalizeCounting());
     }
 
+    @PostMapping("/reset-discrepancy")
+    public void resetDiscrepancy() {
+        process(new AdjustSaldo());
+    }
+
     @PostMapping("/pay")
     public void pay() {
         process(new PayReceipts());
     }
 
-    @GetMapping("/balance")
-    public double balance() {
-        return queryService.getSaldo(streamId);
-    }
-
     private void process(CashBoxCommand cmd) {
         applicationService.execute(streamId,
                 toStreamCommand(events -> decider.decideOnEventsAndReturnEvents(events, cmd)));
+    }
+
+    @GetMapping()
+    public CashboxQueryService.CashBoxReadModel openBalance() {
+        return queryService.getReadModel(streamId);
     }
 }
