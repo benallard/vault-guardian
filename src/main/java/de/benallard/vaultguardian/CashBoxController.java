@@ -5,6 +5,7 @@ import de.benallard.vaultguardian.events.CashBoxEvent;
 import org.occurrent.application.service.blocking.ApplicationService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
 import java.util.UUID;
 
 import static org.occurrent.application.composition.command.CommandConversion.toStreamCommand;
@@ -29,9 +30,13 @@ public class CashBoxController {
         this.queryService = queryService;
     }
 
+    public record InitialBalance(double initialAmount) {
+    }
+
     @PostMapping()
-    public UUID create(@RequestBody CreateCashBox cmd) {
+    public UUID create(@RequestBody InitialBalance balance) {
         var boxId = UUID.randomUUID();
+        var cmd = new CreateCashBox(boxId, balance.initialAmount);
         process(boxId, cmd);
         return boxId;
     }
@@ -75,5 +80,10 @@ public class CashBoxController {
     @GetMapping("/{id}")
     public CashboxQueryService.CashBoxReadModel openBalance(@PathVariable("id") UUID boxId) {
         return queryService.getReadModel(streamId + "-" + boxId);
+    }
+
+    @GetMapping()
+    public Collection<UUID> listCashBoxes() {
+        return queryService.listBoxes();
     }
 }

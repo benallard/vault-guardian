@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class CashBoxDecider implements Decider<CashBoxCommand, CashBoxState, CashBoxEvent> {
@@ -28,7 +29,9 @@ public class CashBoxDecider implements Decider<CashBoxCommand, CashBoxState, Cas
             // While it might look cool to have the decider create the cash box on the fly,
             // I don't think it's worth it. Better to be explicit.
             // But for demonstration purposes, here is how it would look like:
-            res.add(new CashBoxCreated(0));
+            // However, as we see, there is no way to return the created box ID to the caller.
+            res.add(new CashBoxCreated(UUID.randomUUID(), 0));
+            throw new IllegalStateException("Cash box not created yet. Please create it first.");
         }
         res.add(
                 switch (cashBoxCommand) {
@@ -36,7 +39,7 @@ public class CashBoxDecider implements Decider<CashBoxCommand, CashBoxState, Cas
                         if (!cashBoxState.virgin()) {
                             throw new IllegalStateException("Cash box already created");
                         }
-                        yield new CashBoxCreated(create.initialAmount());
+                        yield new CashBoxCreated(create.cashBoxId(), create.initialAmount());
                     }
                     case AddReceipt receipt -> {
                         if (cashBoxState.toPayAmount() + receipt.amount() > 500) {

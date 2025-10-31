@@ -6,7 +6,9 @@ import org.occurrent.application.converter.CloudEventConverter;
 import org.occurrent.application.converter.jackson.JacksonCloudEventConverter;
 import org.occurrent.application.service.blocking.ApplicationService;
 import org.occurrent.application.service.blocking.generic.GenericApplicationService;
+import org.occurrent.dsl.query.blocking.DomainEventQueries;
 import org.occurrent.eventstore.api.blocking.EventStore;
+import org.occurrent.eventstore.api.blocking.EventStoreQueries;
 import org.occurrent.eventstore.inmemory.InMemoryEventStore;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -33,6 +35,11 @@ public class VaultGuardianApplication {
 
     @Bean
     public ApplicationService<CashBoxEvent> applicationService(EventStore eventStore, CloudEventConverter<CashBoxEvent> eventConverter) {
-        return new GenericApplicationService<CashBoxEvent>(eventStore, eventConverter);
+        return new GenericApplicationService<>(eventStore, eventConverter);
+    }
+
+    @Bean
+    public DomainEventQueries<CashBoxEvent> domainEventQueries(EventStoreQueries eventStore, CloudEventConverter<CashBoxEvent> eventConverter){
+        return new DomainEventQueries<>(eventStore, eventConverter);
     }
 }
