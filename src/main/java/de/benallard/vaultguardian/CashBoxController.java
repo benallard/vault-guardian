@@ -5,6 +5,8 @@ import de.benallard.vaultguardian.events.CashBoxEvent;
 import org.occurrent.application.service.blocking.ApplicationService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 import static org.occurrent.application.composition.command.CommandConversion.toStreamCommand;
 
 @RestController
@@ -27,44 +29,51 @@ public class CashBoxController {
         this.queryService = queryService;
     }
 
-    @PostMapping("/receipt")
-    public void receipt(@RequestBody AddReceipt cmd) {
-        process(cmd);
+    @PostMapping()
+    public UUID create(@RequestBody CreateCashBox cmd) {
+        var boxId = UUID.randomUUID();
+        process(boxId, cmd);
+        return boxId;
+    }
+
+    @PostMapping("/{id}/receipt")
+    public void receipt(@PathVariable("id") UUID boxId, @RequestBody AddReceipt cmd) {
+        process(boxId, cmd);
     }
 
 
-    @PostMapping("/refill")
-    public void refill(@RequestBody ReceiveRefill cmd) {
-        process(cmd);
+    @PostMapping("/{id}/refill")
+    public void refill(@PathVariable("id") UUID boxId, @RequestBody ReceiveRefill cmd) {
+        process(boxId, cmd);
     }
 
-    @PostMapping("/count")
-    public void count(@RequestBody CountMoney cmd) {
-        process(cmd);
+    @PostMapping("/{id}/count")
+    public void count(@PathVariable("id") UUID boxId, @RequestBody CountMoney cmd) {
+        process(boxId, cmd);
     }
 
-    @PostMapping("/done-counting")
-    public void doneCounting() {
-        process(new FinalizeCounting());
+    @PostMapping("/{id}/done-counting")
+    public void doneCounting(@PathVariable("id") UUID boxId) {
+        process(boxId, new FinalizeCounting());
     }
 
-    @PostMapping("/reset-discrepancy")
-    public void resetDiscrepancy() {
-        process(new AdjustSaldo());
+    @PostMapping("/{id}/reset-discrepancy")
+    public void resetDiscrepancy(@PathVariable("id") UUID boxId) {
+        process(boxId, new AdjustSaldo());
     }
 
-    @PostMapping("/pay")
-    public void pay() {
-        process(new PayReceipts());
+    @PostMapping("/{id}/pay")
+    public void pay(@PathVariable("id") UUID boxId) {
+        process(boxId, new PayReceipts());
     }
 
-    private void process(CashBoxCommand cmd) {
-        applicationService.execute(streamId,
+    private void process(UUID aBoxId, CashBoxCommand cmd) {
+        applicationService.execute(streamId + "-" + aBoxId,
                 toStreamCommand(events -> decider.decideOnEventsAndReturnEvents(events, cmd)));
     }
 
-    @GetMapping()
-    public CashboxQueryService.CashBoxReadModel openBalance() {
-        return queryService.getReadModel(streamId);
+    @GetMapping("/{id}")
+    public CashboxQueryService.CashBoxReadModel openBalance(@PathVariable("id") UUID boxId) {
+        return queryService.getReadModel(streamId + "-" + boxId);
     }
 }

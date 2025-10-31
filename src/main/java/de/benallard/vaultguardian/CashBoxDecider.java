@@ -25,6 +25,9 @@ public class CashBoxDecider implements Decider<CashBoxCommand, CashBoxState, Cas
     public List<CashBoxEvent> decide(@NotNull CashBoxCommand cashBoxCommand, CashBoxState cashBoxState) {
         List<CashBoxEvent> res = new LinkedList<>();
         if (cashBoxState.virgin() && !(cashBoxCommand instanceof CreateCashBox)) {
+            // While it might look cool to have the decider create the cash box on the fly,
+            // I don't think it's worth it. Better to be explicit.
+            // But for demonstration purposes, here is how it would look like:
             res.add(new CashBoxCreated(0));
         }
         res.add(
