@@ -10,51 +10,55 @@
     <groupId>de.benallard</groupId>
     <artifactId>vault-guardian</artifactId>
     <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
     <name>KassenWächter</name>
+    <modules>
+        <module>eventstore-jpa</module>
+        <module>app</module>
+    </modules>
 
     <properties>
         <java.version>25</java.version>
     </properties>
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.occurrent</groupId>
-            <artifactId>decider</artifactId>
-            <version>0.19.12</version>
-        </dependency>
-        <dependency>
-            <groupId>org.occurrent</groupId>
-            <artifactId>eventstore-inmemory</artifactId>
-            <version>0.19.12</version>
-        </dependency>
-        <dependency>
-            <groupId>org.occurrent</groupId>
-            <artifactId>application-service-blocking</artifactId>
-            <version>0.19.12</version>
-        </dependency>
-        <dependency>
-            <groupId>org.occurrent</groupId>
-            <artifactId>cloudevent-converter-jackson</artifactId>
-            <version>0.19.12</version>
-        </dependency>
-        <dependency>
-            <groupId>org.occurrent</groupId>
-            <artifactId>command-composition</artifactId>
-            <version>0.19.12</version>
-        </dependency>
-        <dependency>
-            <groupId>org.occurrent</groupId>
-            <artifactId>query-dsl-blocking</artifactId>
-            <version>0.19.12</version>
-        </dependency>
-    </dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.occurrent</groupId>
+                <artifactId>decider</artifactId>
+                <version>0.19.12</version>
+            </dependency>
+            <dependency>
+                <groupId>org.occurrent</groupId>
+                <artifactId>eventstore-inmemory</artifactId>
+                <version>0.19.12</version>
+            </dependency>
+            <dependency>
+                <groupId>org.occurrent</groupId>
+                <artifactId>application-service-blocking</artifactId>
+                <version>0.19.12</version>
+            </dependency>
+            <dependency>
+                <groupId>org.occurrent</groupId>
+                <artifactId>cloudevent-converter-jackson</artifactId>
+                <version>0.19.12</version>
+            </dependency>
+            <dependency>
+                <groupId>org.occurrent</groupId>
+                <artifactId>command-composition</artifactId>
+                <version>0.19.12</version>
+            </dependency>
+            <dependency>
+                <groupId>org.occurrent</groupId>
+                <artifactId>query-dsl-blocking</artifactId>
+                <version>0.19.12</version>
+            </dependency>
+            <dependency>
+                <groupId>org.occurrent</groupId>
+                <artifactId>subscription-inmemory</artifactId>
+                <version>0.19.12</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>

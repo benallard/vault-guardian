@@ -6,8 +6,6 @@ import io.cloudevents.CloudEvent;
 import org.occurrent.application.converter.CloudEventConverter;
 import org.occurrent.dsl.query.blocking.DomainEventQueries;
 import org.occurrent.eventstore.api.blocking.EventStore;
-import org.occurrent.eventstore.api.blocking.EventStoreQueries;
-import org.occurrent.filter.Filter;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
