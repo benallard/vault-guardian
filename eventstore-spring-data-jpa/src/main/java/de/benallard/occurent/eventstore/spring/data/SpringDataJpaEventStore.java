@@ -115,7 +115,7 @@ public class SpringDataJpaEventStore implements EventStore, EventStoreQueries {
         return new EventStreamImpl(
                 stream.getName(),
                 stream.getVersion(),
-                (Stream<CloudEvent>) events.stream());
+                (List<CloudEvent>) events);
     }
 
     @Override

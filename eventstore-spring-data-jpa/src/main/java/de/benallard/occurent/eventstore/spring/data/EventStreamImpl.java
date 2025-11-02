@@ -3,25 +3,26 @@ package de.benallard.occurent.eventstore.spring.data;
 import io.cloudevents.CloudEvent;
 import org.occurrent.eventstore.api.blocking.EventStream;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 public record EventStreamImpl(
         String streamId,
         long streamVersion,
-        Stream<CloudEvent> events
+        List<CloudEvent> _events
 ) implements EventStream<CloudEvent> {
     @Override
     public String id() {
-        return "";
+        return streamId;
     }
 
     @Override
     public long version() {
-        return 0;
+        return streamVersion;
     }
 
     @Override
     public Stream<CloudEvent> events() {
-        return Stream.empty();
+        return _events.stream();
     }
 }

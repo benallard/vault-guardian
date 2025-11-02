@@ -5,12 +5,14 @@ import io.cloudevents.CloudEventData;
 import io.cloudevents.SpecVersion;
 import io.cloudevents.core.data.BytesCloudEventData;
 import jakarta.persistence.*;
+import org.occurrent.cloudevents.OccurrentCloudEventExtension;
 
 import java.net.URI;
 import java.time.OffsetDateTime;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+
+import static org.occurrent.cloudevents.OccurrentCloudEventExtension.STREAM_ID;
+import static org.occurrent.cloudevents.OccurrentCloudEventExtension.STREAM_VERSION;
 
 @Entity
 @Table(name = "cloud_event",
@@ -164,12 +166,16 @@ public class CloudEventEntity implements CloudEvent {
     }
 
     @Override
-    public Object getExtension(String s) {
-        return null;
+    public Object getExtension(String aName) {
+        return switch (aName){
+            case STREAM_VERSION -> getStreamPosition();
+            case STREAM_ID -> getStream().getName();
+            default -> null;
+        };
     }
 
     @Override
     public Set<String> getExtensionNames() {
-        return Set.of();
+        return Set.of(STREAM_ID, STREAM_VERSION);
     }
 }
