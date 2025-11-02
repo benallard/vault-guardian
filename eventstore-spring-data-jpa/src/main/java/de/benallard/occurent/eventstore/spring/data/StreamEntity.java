@@ -1,15 +1,19 @@
 package de.benallard.occurent.eventstore.spring.data;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.util.UUID;
 
+
 @Entity
+@Table(name = "event_stream",
+        indexes = {
+                @Index(name = "idx_event_stream_name", columnList = "name", unique = true)
+        })
 public class StreamEntity {
 
     @Id
+    @GeneratedValue
     @Column(name = "id", nullable = false)
     private UUID id;
 

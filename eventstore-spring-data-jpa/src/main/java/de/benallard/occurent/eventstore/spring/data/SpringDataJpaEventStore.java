@@ -3,13 +3,13 @@ package de.benallard.occurent.eventstore.spring.data;
 import io.cloudevents.CloudEvent;
 import jakarta.transaction.Transactional;
 import org.occurrent.condition.Condition;
-import org.occurrent.eventstore.api.LongConditionEvaluator;
-import org.occurrent.eventstore.api.WriteCondition;
-import org.occurrent.eventstore.api.WriteConditionNotFulfilledException;
-import org.occurrent.eventstore.api.WriteResult;
+import org.occurrent.eventstore.api.*;
 import org.occurrent.eventstore.api.blocking.EventStore;
+import org.occurrent.eventstore.api.blocking.EventStoreQueries;
 import org.occurrent.eventstore.api.blocking.EventStream;
+import org.occurrent.filter.Filter;
 import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -18,13 +18,14 @@ import java.util.stream.Stream;
 /**
  * A JPA-based implementation of the {@link EventStore} interface.
  */
-public class JpaEventStore implements EventStore {
+@Component
+public class SpringDataJpaEventStore implements EventStore, EventStoreQueries {
 
     private final CloudEventRepository itsCloudEventRepository;
     private final StreamRepository itsStreamRepository;
     private final CloudEventMapper itsCloudEventMapper;
 
-    public JpaEventStore(
+    public SpringDataJpaEventStore(
             CloudEventRepository itsCloudEventRepository,
             StreamRepository itsStreamRepository,
             CloudEventMapper itsCloudEventMapper) {
@@ -120,5 +121,24 @@ public class JpaEventStore implements EventStore {
     @Override
     public WriteResult write(String streamId, Stream<CloudEvent> events) {
         return write(streamId, WriteCondition.anyStreamVersion(), events);
+    }
+
+    /*
+     * Following query methods are not implemented yet.
+     */
+
+    @Override
+    public Stream<CloudEvent> query(Filter filter, int skip, int limit, SortBy sortBy) {
+        return Stream.empty();
+    }
+
+    @Override
+    public long count(Filter filter) {
+        return 0;
+    }
+
+    @Override
+    public boolean exists(Filter filter) {
+        return false;
     }
 }

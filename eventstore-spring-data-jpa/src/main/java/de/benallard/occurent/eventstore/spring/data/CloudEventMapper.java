@@ -1,9 +1,11 @@
 package de.benallard.occurent.eventstore.spring.data;
 
 import io.cloudevents.CloudEvent;
+import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
+@Component
 public class CloudEventMapper {
 
     public CloudEventEntity toEntity(CloudEvent aEvent) {

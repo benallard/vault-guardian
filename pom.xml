@@ -23,6 +23,11 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>de.benallard</groupId>
+                <artifactId>eventstore-spring-data-jpa</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.occurrent</groupId>
                 <artifactId>decider</artifactId>
                 <version>0.19.12</version>

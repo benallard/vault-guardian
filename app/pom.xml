@@ -33,6 +33,10 @@
             <artifactId>eventstore-inmemory</artifactId>
         </dependency>
         <dependency>
+            <groupId>de.benallard</groupId>
+            <artifactId>eventstore-spring-data-jpa</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.occurrent</groupId>
             <artifactId>application-service-blocking</artifactId>
         </dependency>

@@ -13,6 +13,11 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
+@Table(name = "cloud_event",
+        indexes = {
+                @Index(name = "IDX_cloud_event_stream", columnList = "stream_id"),
+                @Index(name = "IDX_cloud_event_stream_position", columnList = "stream_position"),
+        })
 public class CloudEventEntity implements CloudEvent {
 
     @Id
@@ -24,7 +29,7 @@ public class CloudEventEntity implements CloudEvent {
     private SpecVersion specVersion;
 
     @ManyToOne
-    @JoinColumn(name="stream_id", nullable = false, updatable = false)
+    @JoinColumn(name = "stream_id", nullable = false, updatable = false)
     private StreamEntity stream;
 
     @Column(name = "stream_position", nullable = false, updatable = false)
@@ -51,7 +56,7 @@ public class CloudEventEntity implements CloudEvent {
     @Column(name = "data", updatable = false)
     private byte[] data;
 
-    @OneToMany
+    @OneToMany(mappedBy = "cloudEvent")
     @MapKey(name = "attributeName")
     private Map<String, CloudEventAttributeEntity> attributes;
 

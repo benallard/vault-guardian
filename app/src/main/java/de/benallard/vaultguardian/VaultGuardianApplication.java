@@ -1,6 +1,7 @@
 package de.benallard.vaultguardian;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.benallard.occurent.eventstore.spring.data.*;
 import de.benallard.vaultguardian.events.CashBoxEvent;
 import org.occurrent.application.converter.CloudEventConverter;
 import org.occurrent.application.converter.jackson.JacksonCloudEventConverter;
@@ -9,22 +10,18 @@ import org.occurrent.application.service.blocking.generic.GenericApplicationServ
 import org.occurrent.dsl.query.blocking.DomainEventQueries;
 import org.occurrent.eventstore.api.blocking.EventStore;
 import org.occurrent.eventstore.api.blocking.EventStoreQueries;
-import org.occurrent.eventstore.inmemory.InMemoryEventStore;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 
 import java.net.URI;
 
 @SpringBootApplication
+@Import(SpringDataJpaEventStoreConfiguration.class)
 public class VaultGuardianApplication {
-    public static void main(String[] args) {
+    static void main(String[] args) {
         SpringApplication.run(VaultGuardianApplication.class, args);
-    }
-
-    @Bean
-    public EventStore myEventStore() {
-        return new InMemoryEventStore();
     }
 
     @Bean
