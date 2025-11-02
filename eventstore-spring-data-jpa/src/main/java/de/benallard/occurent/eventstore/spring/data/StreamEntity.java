@@ -1,0 +1,45 @@
+package de.benallard.occurent.eventstore.spring.data;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+
+import java.util.UUID;
+
+@Entity
+public class StreamEntity {
+
+    @Id
+    @Column(name = "id", nullable = false)
+    private UUID id;
+
+    @Column(name = "name", nullable = false, updatable = false)
+    private String name;
+
+    @Column(name = "version", nullable = false)
+    private Long version;
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID aId) {
+        id = aId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String aName) {
+        name = aName;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long aVersion) {
+        version = aVersion;
+    }
+}
