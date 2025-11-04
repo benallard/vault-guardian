@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import org.occurrent.condition.Condition;
 import org.occurrent.eventstore.api.*;
 import org.occurrent.eventstore.api.blocking.EventStore;
+import org.occurrent.eventstore.api.blocking.EventStoreOperations;
 import org.occurrent.eventstore.api.blocking.EventStoreQueries;
 import org.occurrent.eventstore.api.blocking.EventStream;
 import org.occurrent.filter.Filter;
@@ -12,15 +13,19 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
+import java.net.URI;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
  * A JPA-based implementation of the {@link EventStore} interface.
  */
 @Component
-public class SpringDataJpaEventStore implements EventStore, EventStoreQueries {
+public class SpringDataJpaEventStore implements EventStore, EventStoreOperations, EventStoreQueries {
 
     private final CloudEventRepository itsCloudEventRepository;
     private final StreamRepository itsStreamRepository;
@@ -134,11 +139,11 @@ public class SpringDataJpaEventStore implements EventStore, EventStoreQueries {
     @Override
     public Stream<CloudEvent> query(Filter filter, int skip, int limit, SortBy sortBy) {
         return itsCloudEventRepository.findAll(
-                itsQueryMapper.mapFilter(filter),
-                new OffsetBasedPageRequest(
-                        skip,
-                        limit,
-                        itsQueryMapper.mapSortBy(sortBy)))
+                        itsQueryMapper.mapFilter(filter),
+                        new OffsetBasedPageRequest(
+                                skip,
+                                limit,
+                                itsQueryMapper.mapSortBy(sortBy)))
                 .stream()
                 .map(e -> (CloudEvent) e);
     }
@@ -153,5 +158,39 @@ public class SpringDataJpaEventStore implements EventStore, EventStoreQueries {
     public boolean exists(Filter filter) {
         Specification<CloudEventEntity> spec = itsQueryMapper.mapFilter(filter);
         return itsCloudEventRepository.exists(spec);
+    }
+
+    @Override
+    public void deleteEventStream(String streamId) {
+        itsCloudEventRepository.deleteByStream_Name(streamId);
+        itsStreamRepository.deleteByName(streamId);
+    }
+
+    @Override
+    public void deleteEvent(String cloudEventId, URI cloudEventSource) {
+        itsCloudEventRepository.deleteByEventIdAndSource(cloudEventId, cloudEventSource.toString());
+
+    }
+
+    @Override
+    public void delete(Filter filter) {
+        Specification<CloudEventEntity> spec = itsQueryMapper.mapFilter(filter);
+        itsCloudEventRepository.delete(spec);
+    }
+
+    @Override
+    @Transactional
+    public Optional<CloudEvent> updateEvent(String cloudEventId, URI cloudEventSource, Function<CloudEvent, CloudEvent> updateFunction) {
+        Optional<CloudEventEntity> eventOpt = itsCloudEventRepository.findByEventIdAndSource(cloudEventId, cloudEventSource);
+        if (eventOpt.isEmpty()) {
+            return Optional.empty();
+        }
+        var event = eventOpt.get();
+        UUID oldId = event.getPK();
+        var newEvent = itsCloudEventMapper.toEntity(
+                updateFunction.apply(event));
+        newEvent.setPK(oldId);
+        itsCloudEventRepository.save(newEvent);
+        return Optional.of(event);
     }
 }

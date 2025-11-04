@@ -5,11 +5,12 @@ import io.cloudevents.CloudEventData;
 import io.cloudevents.SpecVersion;
 import io.cloudevents.core.data.BytesCloudEventData;
 import jakarta.persistence.*;
-import org.occurrent.cloudevents.OccurrentCloudEventExtension;
 
 import java.net.URI;
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import static org.occurrent.cloudevents.OccurrentCloudEventExtension.STREAM_ID;
 import static org.occurrent.cloudevents.OccurrentCloudEventExtension.STREAM_VERSION;
@@ -19,10 +20,13 @@ import static org.occurrent.cloudevents.OccurrentCloudEventExtension.STREAM_VERS
         indexes = {
                 @Index(name = "IDX_cloud_event_stream", columnList = "stream_id"),
                 @Index(name = "IDX_cloud_event_stream_position", columnList = "stream_position"),
+                @Index(name = "U_cloud_event_event_id_source", columnList = "event_id, source", unique = true),
+                @Index(name = "U_cloud_event_stream_position", columnList = "stream_id, stream_position", unique = true),
         })
 public class CloudEventEntity implements CloudEvent {
 
     @Id
+    @GeneratedValue
     @Column(name = "id", nullable = false)
     private UUID id;
 
@@ -36,6 +40,9 @@ public class CloudEventEntity implements CloudEvent {
 
     @Column(name = "stream_position", nullable = false, updatable = false)
     private Long streamPosition;
+
+    @Column(name = "event_id", nullable = false, updatable = false)
+    private String eventId;
 
     @Column(name = "source", nullable = false, updatable = false)
     private URI source;
@@ -62,6 +69,13 @@ public class CloudEventEntity implements CloudEvent {
     @MapKey(name = "attributeName")
     private Map<String, CloudEventAttributeEntity> attributes;
 
+    public UUID getPK(){
+        return id;
+    }
+
+    public void setPK(UUID aId){
+        id = aId;
+    }
 
     @Override
     public CloudEventData getData() {
@@ -79,15 +93,6 @@ public class CloudEventEntity implements CloudEvent {
 
     public void setSpecVersion(SpecVersion aSpecVersion) {
         specVersion = aSpecVersion;
-    }
-
-    @Override
-    public String getId() {
-        return id.toString();
-    }
-
-    public void setId(UUID aId) {
-        id = aId;
     }
 
     public StreamEntity getStream() {
@@ -113,6 +118,15 @@ public class CloudEventEntity implements CloudEvent {
 
     public void setType(String aType) {
         type = aType;
+    }
+
+    @Override
+    public String getId() {
+        return eventId;
+    }
+
+    public void setEventId(String aEventId) {
+        eventId = aEventId;
     }
 
     @Override
@@ -167,7 +181,7 @@ public class CloudEventEntity implements CloudEvent {
 
     @Override
     public Object getExtension(String aName) {
-        return switch (aName){
+        return switch (aName) {
             case STREAM_VERSION -> getStreamPosition();
             case STREAM_ID -> getStream().getName();
             default -> null;

@@ -12,4 +12,6 @@ public interface StreamRepository extends JpaRepository<StreamEntity, UUID> {
     Optional<StreamEntity> getByName(String name);
 
     boolean existsByName(String streamId);
+
+    void deleteByName(String streamId);
 }

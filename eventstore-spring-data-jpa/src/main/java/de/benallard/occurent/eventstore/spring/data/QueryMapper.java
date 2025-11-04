@@ -15,6 +15,7 @@ import java.util.List;
 /**
  * A mapper for all-things query related:
  * - Filter
+ * - Condition
  * - SortBy
  */
 @Component
