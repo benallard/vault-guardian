@@ -168,7 +168,7 @@ public class SpringDataJpaEventStore implements EventStore, EventStoreOperations
 
     @Override
     public void deleteEvent(String cloudEventId, URI cloudEventSource) {
-        itsCloudEventRepository.deleteByEventIdAndSource(cloudEventId, cloudEventSource.toString());
+        itsCloudEventRepository.deleteByEventIdAndSource(cloudEventId, cloudEventSource);
 
     }
 

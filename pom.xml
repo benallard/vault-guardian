@@ -29,33 +29,10 @@
             </dependency>
             <dependency>
                 <groupId>org.occurrent</groupId>
-                <artifactId>decider</artifactId>
-                <version>0.19.12</version>
-            </dependency>
-            <dependency>
-                <groupId>org.occurrent</groupId>
-                <artifactId>eventstore-inmemory</artifactId>
-                <version>0.19.12</version>
-            </dependency>
-            <dependency>
-                <groupId>org.occurrent</groupId>
-                <artifactId>application-service-blocking</artifactId>
-                <version>0.19.12</version>
-            </dependency>
-            <dependency>
-                <groupId>org.occurrent</groupId>
-                <artifactId>cloudevent-converter-jackson</artifactId>
-                <version>0.19.12</version>
-            </dependency>
-            <dependency>
-                <groupId>org.occurrent</groupId>
-                <artifactId>command-composition</artifactId>
-                <version>0.19.12</version>
-            </dependency>
-            <dependency>
-                <groupId>org.occurrent</groupId>
-                <artifactId>query-dsl-blocking</artifactId>
-                <version>0.19.12</version>
+                <artifactId>occurrent-bom</artifactId>
+                <version>0.19.14</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

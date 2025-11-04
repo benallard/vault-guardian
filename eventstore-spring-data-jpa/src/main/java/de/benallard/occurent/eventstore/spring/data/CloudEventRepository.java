@@ -19,5 +19,5 @@ public interface CloudEventRepository extends JpaRepository<CloudEventEntity, UU
 
     Optional<CloudEventEntity> findByEventIdAndSource(String cloudEventId, URI cloudEventSource);
 
-    void deleteByEventIdAndSource(String cloudEventId, String string);
+    void deleteByEventIdAndSource(String cloudEventId, URI cloudEventSource);
 }
