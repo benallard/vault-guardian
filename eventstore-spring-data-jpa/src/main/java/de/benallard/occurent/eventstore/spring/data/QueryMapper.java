@@ -25,7 +25,8 @@ public class QueryMapper {
         return switch (aFilter) {
             case Filter.All all -> Specification.unrestricted();
             case Filter.SingleConditionFilter single -> (root, query, builder) -> {
-                Expression<?> field = root.get(single.fieldName());
+                Expression<?> field = root.get(
+                        mapFieldName(single.fieldName()));
                 return mapCondition(field, single.condition(), builder);
             };
             case Filter.CompositionFilter composition -> {
@@ -37,6 +38,16 @@ public class QueryMapper {
                     case AND -> Specification.allOf(specs);
                 };
             }
+        };
+    }
+
+    String mapFieldName(String fieldName) {
+        return switch (fieldName) {
+            case "id" -> "eventId";
+            case "datacontenttype" -> "dataContentType";
+            case "dataschema" -> "dataSchema";
+            case "streamid" -> "streamId";
+            default -> fieldName;
         };
     }
 

@@ -161,6 +161,7 @@ public class SpringDataJpaEventStore implements EventStore, EventStoreOperations
     }
 
     @Override
+    @Transactional
     public void deleteEventStream(String streamId) {
         itsCloudEventRepository.deleteByStream_Name(streamId);
         itsStreamRepository.deleteByName(streamId);
@@ -173,6 +174,7 @@ public class SpringDataJpaEventStore implements EventStore, EventStoreOperations
     }
 
     @Override
+    @Transactional
     public void delete(Filter filter) {
         Specification<CloudEventEntity> spec = itsQueryMapper.mapFilter(filter);
         itsCloudEventRepository.delete(spec);

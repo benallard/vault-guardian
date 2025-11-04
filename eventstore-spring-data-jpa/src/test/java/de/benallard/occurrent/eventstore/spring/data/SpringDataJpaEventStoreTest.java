@@ -20,7 +20,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.benallard.occurent.eventstore.spring.data.SpringDataJpaEventStore;
-import de.benallard.occurent.eventstore.spring.data.SpringDataJpaEventStoreConfiguration;
 import io.cloudevents.CloudEvent;
 import io.cloudevents.core.builder.CloudEventBuilder;
 import io.cloudevents.core.data.PojoCloudEventData;
@@ -33,16 +32,14 @@ import org.junit.jupiter.api.condition.EnabledForJreRange;
 import org.junit.jupiter.api.condition.EnabledOnJre;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.occurrent.cloudevents.OccurrentCloudEventExtension;
-import org.occurrent.eventstore.api.*;
+import org.occurrent.eventstore.api.SortBy;
+import org.occurrent.eventstore.api.WriteCondition;
+import org.occurrent.eventstore.api.WriteConditionNotFulfilledException;
+import org.occurrent.eventstore.api.WriteResult;
 import org.occurrent.eventstore.api.blocking.EventStream;
 import org.occurrent.filter.Filter;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.net.URI;
 import java.time.Instant;
@@ -74,21 +71,13 @@ import static org.occurrent.eventstore.api.SortBy.SortDirection.DESCENDING;
 import static org.occurrent.filter.Filter.*;
 
 @SuppressWarnings("SameParameterValue")
-@SpringBootTest
-@EnableAutoConfiguration
+@SpringBootTest(classes = {SpringBootConfig.class})
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @DisplayNameGeneration(ReplaceUnderscores.class)
 public class SpringDataJpaEventStoreTest {
 
     private static final URI NAME_SOURCE = URI.create("http://name");
 
-    @Configuration
-    @Import(SpringDataJpaEventStoreConfiguration.class)
-    static class TestConfiguration {
-        @Bean
-        public ObjectMapper objectMapper() {
-            return new ObjectMapper();
-        }
-    }
 
     @Inject
     private SpringDataJpaEventStore eventStore;
