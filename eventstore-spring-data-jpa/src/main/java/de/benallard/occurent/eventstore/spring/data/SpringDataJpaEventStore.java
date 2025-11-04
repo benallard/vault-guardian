@@ -9,6 +9,7 @@ import org.occurrent.eventstore.api.blocking.EventStoreQueries;
 import org.occurrent.eventstore.api.blocking.EventStream;
 import org.occurrent.filter.Filter;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -24,14 +25,17 @@ public class SpringDataJpaEventStore implements EventStore, EventStoreQueries {
     private final CloudEventRepository itsCloudEventRepository;
     private final StreamRepository itsStreamRepository;
     private final CloudEventMapper itsCloudEventMapper;
+    private final QueryMapper itsQueryMapper;
 
     public SpringDataJpaEventStore(
             CloudEventRepository itsCloudEventRepository,
             StreamRepository itsStreamRepository,
-            CloudEventMapper itsCloudEventMapper) {
+            CloudEventMapper itsCloudEventMapper,
+            QueryMapper itsQueryMapper) {
         this.itsCloudEventRepository = itsCloudEventRepository;
         this.itsStreamRepository = itsStreamRepository;
         this.itsCloudEventMapper = itsCloudEventMapper;
+        this.itsQueryMapper = itsQueryMapper;
     }
 
     @Override
@@ -129,16 +133,25 @@ public class SpringDataJpaEventStore implements EventStore, EventStoreQueries {
 
     @Override
     public Stream<CloudEvent> query(Filter filter, int skip, int limit, SortBy sortBy) {
-        return Stream.empty();
+        return itsCloudEventRepository.findAll(
+                itsQueryMapper.mapFilter(filter),
+                new OffsetBasedPageRequest(
+                        skip,
+                        limit,
+                        itsQueryMapper.mapSortBy(sortBy)))
+                .stream()
+                .map(e -> (CloudEvent) e);
     }
 
     @Override
-    public long count(Filter filter) {
-        return 0;
+    public long count(Filter aFilter) {
+        Specification<CloudEventEntity> spec = itsQueryMapper.mapFilter(aFilter);
+        return itsCloudEventRepository.count(spec);
     }
 
     @Override
     public boolean exists(Filter filter) {
-        return false;
+        Specification<CloudEventEntity> spec = itsQueryMapper.mapFilter(filter);
+        return itsCloudEventRepository.exists(spec);
     }
 }
