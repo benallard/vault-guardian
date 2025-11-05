@@ -11,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
+import java.net.URI;
 import java.util.List;
 
 /**
@@ -61,14 +62,21 @@ public class QueryMapper {
                 }
                 yield inClause;
             }
-            case Condition.SingleOperandCondition<?> singleOperand -> switch (singleOperand.operandConditionName()) {
-                case EQ -> builder.equal(field, singleOperand.operand());
-                case NE -> builder.notEqual(field, singleOperand.operand());
-                case GT -> builder.greaterThan(field, (Comparable) singleOperand.operand());
-                case GTE -> builder.greaterThanOrEqualTo(field, (Comparable) singleOperand.operand());
-                case LT -> builder.lessThan(field, (Comparable) singleOperand.operand());
-                case LTE -> builder.lessThanOrEqualTo(field, (Comparable) singleOperand.operand());
-            };
+            case Condition.SingleOperandCondition<?> singleOperand -> {
+                Comparable operandValue = (Comparable) singleOperand.operand();
+                // Special case: cast the operand back to an URI ...
+                if (field.getJavaType() == URI.class) {
+                    operandValue = URI.create(singleOperand.operand().toString());
+                }
+                yield switch (singleOperand.operandConditionName()) {
+                    case EQ -> builder.equal(field, operandValue);
+                    case NE -> builder.notEqual(field, operandValue);
+                    case GT -> builder.greaterThan(field, operandValue);
+                    case GTE -> builder.greaterThanOrEqualTo(field, operandValue);
+                    case LT -> builder.lessThan(field, operandValue);
+                    case LTE -> builder.lessThanOrEqualTo(field, operandValue);
+                };
+            }
             /* Honestly I don't really get that part of the API...
              * As the fieldName is the same for the whole chain */
             case Condition.MultiOperandCondition<?> multiOperand -> {
