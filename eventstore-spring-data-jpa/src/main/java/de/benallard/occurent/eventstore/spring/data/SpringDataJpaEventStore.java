@@ -9,6 +9,7 @@ import org.occurrent.eventstore.api.blocking.EventStoreOperations;
 import org.occurrent.eventstore.api.blocking.EventStoreQueries;
 import org.occurrent.eventstore.api.blocking.EventStream;
 import org.occurrent.filter.Filter;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
@@ -81,7 +82,11 @@ public class SpringDataJpaEventStore implements EventStore, EventStoreOperations
         stream.setVersion(counter.get());
         itsStreamRepository.save(stream);
         // Persist the events
-        itsCloudEventRepository.saveAll(newEvents);
+        try {
+            itsCloudEventRepository.saveAllAndFlush(newEvents);
+        } catch (DataIntegrityViolationException dive){
+            throw new DuplicateCloudEventException(streamId, null, null, dive);
+        }
         return new WriteResult(streamId, oldVersion, stream.getVersion());
     }
 

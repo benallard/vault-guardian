@@ -19,7 +19,9 @@ package de.benallard.occurrent.eventstore.spring.data;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.benallard.occurent.eventstore.spring.data.CloudEventRepository;
 import de.benallard.occurent.eventstore.spring.data.SpringDataJpaEventStore;
+import de.benallard.occurent.eventstore.spring.data.StreamRepository;
 import io.cloudevents.CloudEvent;
 import io.cloudevents.core.builder.CloudEventBuilder;
 import io.cloudevents.core.data.PojoCloudEventData;
@@ -32,13 +34,11 @@ import org.junit.jupiter.api.condition.EnabledForJreRange;
 import org.junit.jupiter.api.condition.EnabledOnJre;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.occurrent.cloudevents.OccurrentCloudEventExtension;
-import org.occurrent.eventstore.api.SortBy;
-import org.occurrent.eventstore.api.WriteCondition;
-import org.occurrent.eventstore.api.WriteConditionNotFulfilledException;
-import org.occurrent.eventstore.api.WriteResult;
+import org.occurrent.eventstore.api.*;
 import org.occurrent.eventstore.api.blocking.EventStream;
 import org.occurrent.filter.Filter;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.net.URI;
@@ -81,6 +81,10 @@ public class SpringDataJpaEventStoreTest {
 
     @Inject
     private SpringDataJpaEventStore eventStore;
+    @Inject
+    private CloudEventRepository cloudEventRepository;
+    @Inject
+    private StreamRepository streamRepository;
 
     @Inject
     private ObjectMapper objectMapper;
@@ -195,7 +199,7 @@ public class SpringDataJpaEventStoreTest {
         List<DomainEvent> readEvents = deserialize(eventStream.events());
 
         assertAll(
-                //() -> assertThat(throwable).isExactlyInstanceOf(DuplicateCloudEventException.class).hasCauseExactlyInstanceOf(MongoBulkWriteException.class),
+                () -> assertThat(throwable).isExactlyInstanceOf(DuplicateCloudEventException.class).hasCauseExactlyInstanceOf(DataIntegrityViolationException.class),
                 () -> assertThat(eventStream.version()).isEqualTo(events.size()),
                 () -> assertThat(readEvents).hasSize(2),
                 () -> assertThat(readEvents).containsExactlyElementsOf(events)
@@ -427,7 +431,7 @@ public class SpringDataJpaEventStoreTest {
             List<DomainEvent> readEvents = deserialize(eventStream.events());
 
             assertAll(
-                    //() -> assertThat(throwable).isExactlyInstanceOf(DuplicateCloudEventException.class).hasCauseExactlyInstanceOf(MongoBulkWriteException.class),
+                    () -> assertThat(throwable).isExactlyInstanceOf(DuplicateCloudEventException.class).hasCauseExactlyInstanceOf(DataIntegrityViolationException.class),
                     () -> assertThat(eventStream.version()).isEqualTo(0),
                     () -> assertThat(readEvents).isEmpty()
             );
@@ -451,7 +455,7 @@ public class SpringDataJpaEventStoreTest {
             List<DomainEvent> readEvents = deserialize(eventStream.events());
 
             assertAll(
-                    //() -> assertThat(throwable).isExactlyInstanceOf(DuplicateCloudEventException.class).hasCauseExactlyInstanceOf(MongoBulkWriteException.class),
+                    () -> assertThat(throwable).isExactlyInstanceOf(DuplicateCloudEventException.class).hasCauseExactlyInstanceOf(DataIntegrityViolationException.class),
                     () -> assertThat(eventStream.version()).isEqualTo(2),
                     () -> assertThat(readEvents).hasSize(2),
                     () -> assertThat(readEvents).containsExactly(nameDefined, nameWasChanged1)
@@ -480,8 +484,9 @@ public class SpringDataJpaEventStoreTest {
             assertAll(
                     () -> assertThat(eventStream.version()).isZero(),
                     () -> assertThat(readEvents).isEmpty(),
-                    () -> assertThat(eventStore.exists("name")).isFalse()//,
-                    //() -> assertThat(mongoTemplate.count(query(where(OccurrentCloudEventExtension.STREAM_ID).is("name")), "events")).isZero()
+                    () -> assertThat(eventStore.exists("name")).isFalse(),
+                    () -> assertThat(cloudEventRepository.countByStream_Name("name")).isZero(),
+                    () -> assertThat(streamRepository.existsByName("name")).isFalse()
             );
         }
 
@@ -502,8 +507,9 @@ public class SpringDataJpaEventStoreTest {
             assertAll(
                     () -> assertThat(eventStream.version()).isEqualTo(1),
                     () -> assertThat(readEvents).containsExactly(nameDefined),
-                    () -> assertThat(eventStore.exists("name")).isTrue()//,
-                    //() -> assertThat(mongoTemplate.count(query(where(OccurrentCloudEventExtension.STREAM_ID).is("name")), "events")).isEqualTo(1)
+                    () -> assertThat(eventStore.exists("name")).isTrue(),
+                    () -> assertThat(cloudEventRepository.countByStream_Name("name")).isEqualTo(1),
+                    () -> assertThat(streamRepository.existsByName("name")).isTrue()
             );
         }
 
