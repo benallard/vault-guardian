@@ -48,6 +48,7 @@ public class QueryMapper {
             case "datacontenttype" -> root.get("dataContentType");
             case "dataschema" -> root.get("dataSchema");
             case "streamid" -> root.get("stream").get("name");
+            case "streamversion" -> root.get("streamPosition");
             default -> root.get(fieldName);
         };
     }
@@ -95,12 +96,9 @@ public class QueryMapper {
     public Sort mapSortBy(SortBy aSortBy) {
         return switch (aSortBy) {
             case SortBy.Unsorted _ -> Sort.unsorted();
-            case SortBy.Natural _ -> Sort.by(Sort.Direction.ASC, "streamPosition");
-            case SortBy.SingleFieldImpl singleFieldSort -> {
-                Sort.Direction dir = singleFieldSort.direction == SortBy.SortDirection.ASCENDING ?
-                        Sort.Direction.ASC : Sort.Direction.DESC;
-                yield Sort.by(dir, singleFieldSort.fieldName);
-            }
+            case SortBy.NaturalImpl natural -> Sort.by(mapDirection(natural.direction), "streamPosition");
+            case SortBy.SingleFieldImpl singleFieldSort ->
+                    Sort.by(mapDirection(singleFieldSort.direction), mapFieldName(singleFieldSort.fieldName));
             case SortBy.MultipleSortStepsImpl multipleSort -> {
                 var sort = Sort.unsorted();
                 for (SortBy sortBy : multipleSort.steps) {
@@ -108,6 +106,24 @@ public class QueryMapper {
                 }
                 yield sort;
             }
+        };
+    }
+
+    String mapFieldName(String fieldName) {
+        return switch (fieldName.toLowerCase()) {
+            case "id" -> "eventId";
+            case "datacontenttype" -> "dataContentType";
+            case "dataschema" -> "dataSchema";
+            case "streamid" -> "stream.name";
+            case "streamversion" -> "streamPosition";
+            default -> fieldName;
+        };
+    }
+
+    Sort.Direction mapDirection(SortBy.SortDirection aDirection) {
+        return switch (aDirection) {
+            case ASCENDING -> Sort.Direction.ASC;
+            case DESCENDING -> Sort.Direction.DESC;
         };
     }
 

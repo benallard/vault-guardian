@@ -197,6 +197,9 @@ public class SpringDataJpaEventStore implements EventStore, EventStoreOperations
         UUID oldId = event.getPK();
         var newEvent = itsCloudEventMapper.toEntity(
                 updateFunction.apply(event));
+        if (newEvent == null) {
+            throw new IllegalArgumentException("Cloud event update function is not allowed to return null");
+        }
         newEvent.setPK(oldId);
         itsCloudEventRepository.save(newEvent);
         return Optional.of(event);

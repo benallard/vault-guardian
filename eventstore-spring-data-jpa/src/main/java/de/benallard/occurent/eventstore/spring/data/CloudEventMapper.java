@@ -7,6 +7,9 @@ import org.springframework.stereotype.Component;
 public class CloudEventMapper {
 
     public CloudEventEntity toEntity(CloudEvent aEvent) {
+        if (aEvent == null) {
+            return null;
+        }
         CloudEventEntity res = new CloudEventEntity();
         res.setEventId(aEvent.getId());
         res.setSpecVersion(aEvent.getSpecVersion());
