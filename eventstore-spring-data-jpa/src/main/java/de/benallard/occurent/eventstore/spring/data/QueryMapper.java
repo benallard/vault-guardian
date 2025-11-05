@@ -3,6 +3,7 @@ package de.benallard.occurent.eventstore.spring.data;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.occurrent.condition.Condition;
 import org.occurrent.eventstore.api.SortBy;
 import org.occurrent.filter.Filter;
@@ -25,8 +26,7 @@ public class QueryMapper {
         return switch (aFilter) {
             case Filter.All all -> Specification.unrestricted();
             case Filter.SingleConditionFilter single -> (root, query, builder) -> {
-                Expression<?> field = root.get(
-                        mapFieldName(single.fieldName()));
+                Expression<?> field = mapFieldName(root, single.fieldName());
                 return mapCondition(field, single.condition(), builder);
             };
             case Filter.CompositionFilter composition -> {
@@ -41,13 +41,13 @@ public class QueryMapper {
         };
     }
 
-    String mapFieldName(String fieldName) {
+    Expression<?> mapFieldName(Root<CloudEventEntity> root, String fieldName) {
         return switch (fieldName) {
-            case "id" -> "eventId";
-            case "datacontenttype" -> "dataContentType";
-            case "dataschema" -> "dataSchema";
-            case "streamid" -> "streamId";
-            default -> fieldName;
+            case "id" -> root.get("eventId");
+            case "datacontenttype" -> root.get("dataContentType");
+            case "dataschema" -> root.get("dataSchema");
+            case "streamid" -> root.get("stream").get("name");
+            default -> root.get(fieldName);
         };
     }
 
