@@ -42,25 +42,25 @@ public class CloudEventEntity implements CloudEvent {
     @Column(name = "event_id", nullable = false, updatable = false)
     private String eventId;
 
-    @Column(name = "source", nullable = false, updatable = false)
+    @Column(name = "source", nullable = false)
     private URI source;
 
-    @Column(name = "subject", updatable = false)
+    @Column(name = "subject")
     private String subject;
 
-    @Column(name = "type", nullable = false, updatable = false)
+    @Column(name = "type", nullable = false)
     private String type;
 
-    @Column(name = "time", updatable = false)
+    @Column(name = "time")
     private OffsetDateTime time;
 
-    @Column(name = "data_content_type", updatable = false)
+    @Column(name = "data_content_type")
     private String dataContentType;
 
-    @Column(name = "data_schema", updatable = false)
+    @Column(name = "data_schema")
     private URI dataSchema;
 
-    @Column(name = "data", updatable = false)
+    @Column(name = "data")
     private byte[] data;
 
     @OneToMany(mappedBy = "cloudEvent")
