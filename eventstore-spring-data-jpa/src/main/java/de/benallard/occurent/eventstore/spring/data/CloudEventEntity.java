@@ -8,9 +8,7 @@ import jakarta.persistence.*;
 
 import java.net.URI;
 import java.time.OffsetDateTime;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static org.occurrent.cloudevents.OccurrentCloudEventExtension.STREAM_ID;
 import static org.occurrent.cloudevents.OccurrentCloudEventExtension.STREAM_VERSION;
@@ -69,11 +67,11 @@ public class CloudEventEntity implements CloudEvent {
     @MapKey(name = "attributeName")
     private Map<String, CloudEventAttributeEntity> attributes;
 
-    public UUID getPK(){
+    public UUID getPK() {
         return id;
     }
 
-    public void setPK(UUID aId){
+    public void setPK(UUID aId) {
         id = aId;
     }
 

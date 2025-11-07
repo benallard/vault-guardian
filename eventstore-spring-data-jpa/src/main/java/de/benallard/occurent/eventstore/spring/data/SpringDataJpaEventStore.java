@@ -111,15 +111,12 @@ public class SpringDataJpaEventStore implements EventStore, EventStoreOperations
     @Override
     @Transactional
     public EventStream<CloudEvent> read(String streamId, int skip, int limit) {
-        StreamEntity stream = itsStreamRepository.getByName(streamId)
-                .orElseGet(() -> {
-                    StreamEntity newStream = new StreamEntity();
-                    newStream.setName(streamId);
-                    newStream.setVersion(0L);
-                    return itsStreamRepository.save(newStream);
-                });
+        Optional<StreamEntity> stream = itsStreamRepository.getByName(streamId);
+        if (stream.isEmpty()) {
+            return new EventStreamImpl(streamId, 0L, List.of());
+        }
         List<? extends CloudEvent> events = itsCloudEventRepository.findByStream(
-                stream,
+                stream.orElse(null),
                 new OffsetBasedPageRequest(
                         skip,
                         limit,
@@ -127,8 +124,8 @@ public class SpringDataJpaEventStore implements EventStore, EventStoreOperations
                                 Sort.Direction.ASC,
                                 "streamPosition")));
         return new EventStreamImpl(
-                stream.getName(),
-                stream.getVersion(),
+                stream.get().getName(),
+                stream.get().getVersion(),
                 (List<CloudEvent>) events);
     }
 
@@ -136,10 +133,6 @@ public class SpringDataJpaEventStore implements EventStore, EventStoreOperations
     public WriteResult write(String streamId, Stream<CloudEvent> events) {
         return write(streamId, WriteCondition.anyStreamVersion(), events);
     }
-
-    /*
-     * Following query methods are not implemented yet.
-     */
 
     @Override
     public Stream<CloudEvent> query(Filter filter, int skip, int limit, SortBy sortBy) {

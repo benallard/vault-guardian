@@ -78,8 +78,6 @@ public class QueryMapper {
                     case LTE -> builder.lessThanOrEqualTo(field, operandValue);
                 };
             }
-            /* Honestly I don't really get that part of the API...
-             * As the fieldName is the same for the whole chain */
             case Condition.MultiOperandCondition<?> multiOperand -> {
                 Predicate[] conditions = multiOperand.operations().stream()
                         .map(c -> mapCondition(field, c, builder))
